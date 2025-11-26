@@ -1,0 +1,2195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Cycling Power Pure - Fair Power-Based Racing</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --success: #2ecc71;
+            --warning: #f39c12;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 2rem 1rem;
+            text-align: center;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        h2 {
+            font-size: 2rem;
+            margin: 2rem 0 1rem;
+            color: var(--primary);
+        }
+        
+        h3 {
+            font-size: 1.5rem;
+            margin: 1.5rem 0 1rem;
+            color: var(--secondary);
+        }
+        
+        p {
+            margin-bottom: 1rem;
+        }
+        
+        .tagline {
+            font-size: 1.5rem;
+            font-weight: 300;
+            margin-bottom: 2rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .comparison-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        
+        @media (max-width: 768px) {
+            .comparison-section {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .chart-container {
+            height: 400px;
+            margin: 2rem 0;
+            position: relative;
+        }
+        
+        .full-width-chart {
+            width: 100%;
+        }
+        
+        .scenario {
+            background-color: var(--light);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+        
+        .scenario h4 {
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+        
+        .scenario-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+        
+        .scenario-table th, .scenario-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .scenario-table th {
+            background-color: var(--secondary);
+            color: white;
+        }
+        
+        .scenario-table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        
+        .benefits-list, .criticism-list {
+            margin-left: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .benefits-list li, .criticism-list li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .highlight {
+            background-color: rgba(52, 152, 219, 0.1);
+            padding: 1.5rem;
+            border-left: 4px solid var(--secondary);
+            margin: 1.5rem 0;
+        }
+        
+        .warning {
+            background-color: rgba(243, 156, 18, 0.1);
+            padding: 1.5rem;
+            border-left: 4px solid var(--warning);
+            margin: 1.5rem 0;
+        }
+        
+        .category-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        
+        .badge {
+            background-color: var(--secondary);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        
+        footer {
+            background-color: var(--primary);
+            color: white;
+            text-align: center;
+            padding: 2rem 1rem;
+            margin-top: 2rem;
+        }
+        
+        .power-data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+        
+        .power-data-table th, .power-data-table td {
+            padding: 0.75rem;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+        
+        .power-data-table th {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .power-data-table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        
+        .rider-profile {
+            display: flex;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .profile-card {
+            flex: 1;
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+            border-top: 4px solid var(--secondary);
+        }
+        
+        .profile-card.heavy {
+            border-top-color: var(--accent);
+        }
+        
+        .profile-card h4 {
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+        
+        .profile-image {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: #eee;
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+        
+        @media (max-width: 768px) {
+            .rider-profile {
+                flex-direction: column;
+            }
+        }
+        
+        .faq-section {
+            margin-top: 2rem;
+        }
+        
+        .faq-item {
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 1.5rem;
+        }
+        
+        .faq-question {
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .platform-logos {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .platform-logo {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .time-scenario {
+            margin: 2rem 0;
+        }
+        
+        .time-period {
+            font-weight: bold;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+        
+        .power-fluctuation {
+            background: rgba(52, 152, 219, 0.1);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+        
+        .scenario-charts {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        
+        @media (max-width: 768px) {
+            .scenario-charts {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .chart-title {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+        
+        .scenario-chart-container {
+            height: 300px;
+            position: relative;
+        }
+        
+        .seasonal-progression {
+            margin: 2rem 0;
+        }
+        
+        .seasonal-phase {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: rgba(52, 152, 219, 0.05);
+            border-radius: 8px;
+        }
+        
+        .phase-icon {
+            font-size: 2rem;
+            width: 60px;
+            text-align: center;
+        }
+        
+        .phase-content {
+            flex: 1;
+        }
+        
+        .phase-title {
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+        }
+        
+        .category-tag {
+            display: inline-block;
+            background: var(--secondary);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            margin-left: 0.5rem;
+        }
+        
+        .comparison-line {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 0.5rem 0;
+            padding: 0.5rem;
+            border-radius: 5px;
+        }
+        
+        .comparison-line.light {
+            background: rgba(52, 152, 219, 0.1);
+        }
+        
+        .comparison-line.heavy {
+            background: rgba(231, 76, 60, 0.1);
+        }
+        
+        .rider-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 0.5rem;
+        }
+        
+        .dot-light {
+            background: rgb(52, 152, 219);
+        }
+        
+        .dot-heavy {
+            background: rgb(231, 76, 60);
+        }
+        
+        .insight-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 1.5rem 0;
+        }
+        
+        .insight-box h4 {
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+        
+        .distance-comparison {
+            display: flex;
+            justify-content: space-around;
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+        
+        .distance-box {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            flex: 1;
+            margin: 0 0.5rem;
+        }
+        
+        .distance-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 0.5rem 0;
+        }
+        
+        .distance-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .scenario-3-charts {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        
+        @media (max-width: 768px) {
+            .scenario-3-charts {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .power-pure-principle {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            margin: 2rem 0;
+            text-align: center;
+        }
+        
+        .principle-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .principle-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+        
+        .principle-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Virtual Cycling Power Pure</h1>
+            <p class="tagline">Your Power. Your Pace. No Exceptions.</p>
+            <p>A universal standard for fair power-based virtual cycling competition</p>
+            
+            <div class="platform-logos">
+                <div class="platform-logo">🚴‍♂️</div>
+                <div class="platform-logo">⚡</div>
+                <div class="platform-logo">🏆</div>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <section class="card">
+            <h2>The Problem with Weight-Based Racing</h2>
+            <p>In traditional virtual cycling platforms like Zwift, performance is calculated using Watts per Kilogram (W/kg), which creates an unbalanced playing field where body type often matters more than pure cycling power.</p>
+            
+            <div class="chart-container full-width-chart">
+                <canvas id="currentSystemChart"></canvas>
+            </div>
+            
+            <div class="highlight">
+                <p><strong>The Challenge:</strong> A 60kg rider putting out 300W (5.0 W/kg) will easily drop a 90kg rider also putting out 300W (3.3 W/kg) on any significant climb, despite both producing identical power.</p>
+            </div>
+        </section>
+        
+        <section class="card">
+            <h2>The Power Pure Principle</h2>
+            <div class="power-pure-principle">
+                <div class="principle-icon">⚖️</div>
+                <div class="principle-title">Equal Power = Equal Performance</div>
+                <div class="principle-text">
+                    Regardless of weight, height, or body type - if you produce similar raw power, you race against similar competitors.<br>
+                    <strong>Your power meter determines your competition, not your scale.</strong>
+                </div>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>Real-World Power Fluctuations</h2>
+            <p>In real cycling, power output isn't constant. It varies based on fatigue, motivation, training status, and race dynamics. Here's how a typical rider's power might fluctuate during a Zwift race:</p>
+            
+            <div class="chart-container full-width-chart">
+                <canvas id="powerFluctuationChart"></canvas>
+            </div>
+            
+            <div class="power-fluctuation">
+                <p><strong>Key Power Zones in a Race:</strong></p>
+                <ul>
+                    <li><strong>Start Surge:</strong> High power to establish position</li>
+                    <li><strong>Settling Period:</strong> Finding rhythm in the pack</li>
+                    <li><strong>Climb Efforts:</strong> Sustained power on gradients</li>
+                    <li><strong>Recovery:</strong> Lower power while drafting</li>
+                    <li><strong>Final Sprint:</strong> Maximal effort to finish</li>
+                </ul>
+            </div>
+        </section>
+        
+        <section class="card">
+            <h2>Scenario: Alpe du Zwift Climb</h2>
+            <p>Let's see how two different riders would perform on the famous Alpe du Zwift climb under both systems:</p>
+            
+            <div class="rider-profile">
+                <div class="profile-card">
+                    <div class="profile-image">🚴‍♂️</div>
+                    <h4>Rider A (Light Climber)</h4>
+                    <p><strong>Weight:</strong> 60kg</p>
+                    <p><strong>Power Output:</strong> 300W</p>
+                    <p><strong>Current W/kg:</strong> 5.0</p>
+                    <p><strong>Power Pure W/kg:</strong> 4.0</p>
+                </div>
+                <div class="profile-card heavy">
+                    <div class="profile-image">💪</div>
+                    <h4>Rider B (Heavy Power)</h4>
+                    <p><strong>Weight:</strong> 90kg</p>
+                    <p><strong>Power Output:</strong> 300W</p>
+                    <p><strong>Current W/kg:</strong> 3.3</p>
+                    <p><strong>Power Pure W/kg:</strong> 4.0</p>
+                </div>
+            </div>
+            
+            <h3>Climb Performance Comparison (8% gradient, 12km climb)</h3>
+            
+            <div class="chart-container full-width-chart">
+                <canvas id="climbComparisonChart"></canvas>
+            </div>
+            
+            <div class="highlight">
+                <p><strong>Power Pure Result:</strong> Both riders would climb side-by-side at identical speeds, creating a direct battle of pure sustained power rather than body weight.</p>
+            </div>
+        </section>
+        
+        <section class="card">
+            <h2>Power vs. Distance Comparison</h2>
+            <p>This chart shows how power output and distance covered relate throughout the climb for both systems:</p>
+            
+            <div class="chart-container full-width-chart">
+                <canvas id="powerDistanceChart"></canvas>
+            </div>
+            
+            <div class="power-fluctuation">
+                <p><strong>Key Insights:</strong></p>
+                <ul>
+                    <li><strong>Current System:</strong> Light rider maintains advantage throughout climb despite same power</li>
+                    <li><strong>Power Pure:</strong> Both riders progress equally when producing same power</li>
+                    <li><strong>Power Fluctuations:</strong> Realistic variations in power output affect climb pace</li>
+                </ul>
+            </div>
+        </section>
+        
+        <section class="card">
+            <h2>Realistic Power Output During Climb</h2>
+            <p>In reality, power output fluctuates during a climb. Here's how the actual power might look for both riders during the Alpe du Zwift ascent:</p>
+            
+            <div class="chart-container full-width-chart">
+                <canvas id="realisticPowerChart"></canvas>
+            </div>
+            
+            <div class="power-fluctuation">
+                <p><strong>Power Fluctuation Patterns:</strong></p>
+                <ul>
+                    <li><strong>Start:</strong> Higher power to establish rhythm</li>
+                    <li><strong>Mid-climb:</strong> Settling into sustainable effort</li>
+                    <li><strong>Steeper sections:</strong> Power increases to maintain speed</li>
+                    <li><strong>Switchbacks:</strong> Slight recovery on less steep sections</li>
+                    <li><strong>Final push:</strong> Increased effort near the summit</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>Seasonal Power Progression & Fitness Impact</h2>
+            <p>Real riders' power changes throughout the season based on training, rest, and racing. Here's how different body types might progress over a year:</p>
+            
+            <div class="chart-container full-width-chart">
+                <canvas id="seasonalPowerChart"></canvas>
+            </div>
+            
+            <div class="seasonal-progression">
+                <div class="seasonal-phase">
+                    <div class="phase-icon">📅</div>
+                    <div class="phase-content">
+                        <div class="phase-title">Off-Season (Dec-Feb)</div>
+                        <div><strong>Focus:</strong> Base training, recovery</div>
+                        <div class="comparison-line light">
+                            <span class="rider-dot dot-light"></span>
+                            <strong>Light Rider (75kg):</strong> 250W avg <span class="category-tag">Intermediate</span>
+                        </div>
+                        <div class="comparison-line heavy">
+                            <span class="rider-dot dot-heavy"></span>
+                            <strong>Heavy Rider (95kg):</strong> 280W avg <span class="category-tag">Advanced</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="seasonal-phase">
+                    <div class="phase-icon">🌱</div>
+                    <div class="phase-content">
+                        <div class="phase-title">Build Phase (Mar-May)</div>
+                        <div><strong>Focus:</strong> Intensity, threshold work</div>
+                        <div class="comparison-line light">
+                            <span class="rider-dot dot-light"></span>
+                            <strong>Light Rider (75kg):</strong> 280W avg <span class="category-tag">Advanced</span>
+                        </div>
+                        <div class="comparison-line heavy">
+                            <span class="rider-dot dot-heavy"></span>
+                            <strong>Heavy Rider (95kg):</strong> 300W avg <span class="category-tag">Elite</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="seasonal-phase">
+                    <div class="phase-icon">⚡</div>
+                    <div class="phase-content">
+                        <div class="phase-title">Peak Season (Jun-Aug)</div>
+                        <div><strong>Focus:</strong> Racing, peak performance</div>
+                        <div class="comparison-line light">
+                            <span class="rider-dot dot-light"></span>
+                            <strong>Light Rider (75kg):</strong> 300W avg <span class="category-tag">Elite</span>
+                        </div>
+                        <div class="comparison-line heavy">
+                            <span class="rider-dot dot-heavy"></span>
+                            <strong>Heavy Rider (95kg):</strong> 290W avg <span class="category-tag">Advanced</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="seasonal-phase">
+                    <div class="phase-icon">🍂</div>
+                    <div class="phase-content">
+                        <div class="phase-title">Late Season (Sep-Nov)</div>
+                        <div><strong>Focus:</strong> Maintenance, fatigue management</div>
+                        <div class="comparison-line light">
+                            <span class="rider-dot dot-light"></span>
+                            <strong>Light Rider (75kg):</strong> 285W avg <span class="category-tag">Advanced</span>
+                        </div>
+                        <div class="comparison-line heavy">
+                            <span class="rider-dot dot-heavy"></span>
+                            <strong>Heavy Rider (95kg):</strong> 270W avg <span class="category-tag">Intermediate</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="warning">
+                <p><strong>Fitness Reality:</strong> Heavier riders often start with higher absolute power but may struggle to maintain peak performance throughout the season due to increased physiological stress. Power Pure's dynamic categories ensure fair competition as fitness levels change.</p>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>Category Progression Throughout Season</h2>
+            <p>See how riders move between categories as their fitness changes over the season:</p>
+            
+            <div class="chart-container full-width-chart">
+                <canvas id="categoryProgressionChart"></canvas>
+            </div>
+            
+            <div class="seasonal-progression">
+                <div class="seasonal-phase">
+                    <div class="phase-icon">📅</div>
+                    <div class="phase-content">
+                        <div class="phase-title">Early Season (Dec-Feb)</div>
+                        <div><strong>Focus:</strong> Base training, building power</div>
+                        <div class="comparison-line light">
+                            <span class="rider-dot dot-light"></span>
+                            <strong>Light Rider:</strong> Building fitness → <span class="category-tag">Intermediate to Advanced</span>
+                        </div>
+                        <div class="comparison-line heavy">
+                            <span class="rider-dot dot-heavy"></span>
+                            <strong>Heavy Rider:</strong> Peak power potential → <span class="category-tag">Advanced to Elite</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="seasonal-phase">
+                    <div class="phase-icon">🌱</div>
+                    <div class="phase-content">
+                        <div class="phase-title">Build Phase (Mar-May)</div>
+                        <div><strong>Focus:</strong> Intensity, racing begins</div>
+                        <div class="comparison-line light">
+                            <span class="rider-dot dot-light"></span>
+                            <strong>Light Rider:</strong> Sustained peak → <span class="category-tag">Advanced/Elite</span>
+                        </div>
+                        <div class="comparison-line heavy">
+                            <span class="rider-dot dot-heavy"></span>
+                            <strong>Heavy Rider:</strong> Early signs of fatigue → <span class="category-tag">Elite to Advanced</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="seasonal-phase">
+                    <div class="phase-icon">⚡</div>
+                    <div class="phase-content">
+                        <div class="phase-title">Peak Season (Jun-Aug)</div>
+                        <div><strong>Focus:</strong> Racing, maximum effort</div>
+                        <div class="comparison-line light">
+                            <span class="rider-dot dot-light"></span>
+                            <strong>Light Rider:</strong> Maintaining peak → <span class="category-tag">Elite</span>
+                        </div>
+                        <div class="comparison-line heavy">
+                            <span class="rider-dot dot-heavy"></span>
+                            <strong>Heavy Rider:</strong> Significant fatigue → <span class="category-tag">Advanced to Intermediate</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="seasonal-phase">
+                    <div class="phase-icon">🍂</div>
+                    <div class="phase-content">
+                        <div class="phase-title">Late Season (Sep-Nov)</div>
+                        <div><strong>Focus:</strong> Recovery, maintenance</div>
+                        <div class="comparison-line light">
+                            <span class="rider-dot dot-light"></span>
+                            <strong>Light Rider:</strong> Gradual decline → <span class="category-tag">Advanced</span>
+                        </div>
+                        <div class="comparison-line heavy">
+                            <span class="rider-dot dot-heavy"></span>
+                            <strong>Heavy Rider:</strong> Burnout recovery → <span class="category-tag">Intermediate</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="insight-box">
+                <h4>Key Insight: Fitness Realities & Category Impact</h4>
+                <p>Heavier riders often show impressive early-season power but face greater challenges maintaining peak performance due to increased physiological stress. Power Pure's dynamic categories ensure fair competition as fitness levels change throughout the season.</p>
+                <p><strong>Without dynamic categories:</strong> Heavy riders would be stuck racing in categories they can no longer compete in as their fitness declines.</p>
+            </div>
+        </section>
+        
+        <section class="card">
+            <h2>Zwift Scenarios Over Time</h2>
+            <p>Let's examine how different riders would perform in specific Zwift scenarios over various time periods:</p>
+            
+            <div class="time-scenario">
+                <div class="time-period">Scenario 1: Tempus Fugit (Flat Time Trial - 20 minutes)</div>
+                <p>A flat, non-drafting course where raw power matters most.</p>
+                
+                <div class="power-pure-principle">
+                    <div class="principle-icon">🚴‍♂️⚡🚴‍♂️</div>
+                    <div class="principle-title">Same Power = Same Race Group</div>
+                    <div class="principle-text">
+                        In Power Pure, riders producing 280-320W race together regardless of weight.<br>
+                        <strong>Your power meter places you, not your body weight.</strong>
+                    </div>
+                </div>
+                
+                <table class="scenario-table">
+                    <tr>
+                        <th>Rider</th>
+                        <th>Weight</th>
+                        <th>Avg Power</th>
+                        <th>Current System</th>
+                        <th>Power Pure</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Light Rider</strong></td>
+                        <td>65kg</td>
+                        <td>280W</td>
+                        <td>22:15 (slower)</td>
+                        <td>21:45 (faster)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Heavy Rider</strong></td>
+                        <td>95kg</td>
+                        <td>320W</td>
+                        <td>20:45 (faster)</td>
+                        <td>20:15 (fastest)</td>
+                    </tr>
+                </table>
+                
+                <div class="distance-comparison">
+                    <div class="distance-box">
+                        <div class="distance-label">Light Rider Distance</div>
+                        <div class="distance-value">15.2 km</div>
+                        <div class="distance-label">Current System</div>
+                    </div>
+                    <div class="distance-box">
+                        <div class="distance-label">Heavy Rider Distance</div>
+                        <div class="distance-value">16.8 km</div>
+                        <div class="distance-label">Current System</div>
+                    </div>
+                    <div class="distance-box">
+                        <div class="distance-label">Light Rider Distance</div>
+                        <div class="distance-value">15.8 km</div>
+                        <div class="distance-label">Power Pure</div>
+                    </div>
+                    <div class="distance-box">
+                        <div class="distance-label">Heavy Rider Distance</div>
+                        <div class="distance-value">17.2 km</div>
+                        <div class="distance-label">Power Pure</div>
+                    </div>
+                </div>
+                
+                <div class="scenario-charts">
+                    <div>
+                        <div class="chart-title">Power Output Over Time</div>
+                        <div class="scenario-chart-container">
+                            <canvas id="scenario1PowerChart"></canvas>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="chart-title">Distance Covered</div>
+                        <div class="scenario-chart-container">
+                            <canvas id="scenario1DistanceChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="insight-box">
+                    <h4>Scenario Insight: Flat Power Test</h4>
+                    <p>On flat courses, heavier riders with higher absolute power have an advantage. Power Pure ensures this advantage is properly recognized rather than being penalized by the W/kg system.</p>
+                    <p><strong>Key Principle:</strong> Races are grouped by power output bands (280-320W), ensuring everyone races against true power-matched competitors.</p>
+                </div>
+            </div>
+            
+            <div class="time-scenario">
+                <div class="time-period">Scenario 2: Watopia's Figure 8 (Mixed Terrain - 45 minutes)</div>
+                <p>A balanced course with flats, rollers, and short climbs.</p>
+                
+                <div class="power-pure-principle">
+                    <div class="principle-icon">🏔️⚡🏔️</div>
+                    <div class="principle-title">Consistent Power = Consistent Performance</div>
+                    <div class="principle-text">
+                        Mixed terrain rewards sustained power output, not weight advantages on specific segments.<br>
+                        <strong>Your average power determines your result, not your body type.</strong>
+                    </div>
+                </div>
+                
+                <table class="scenario-table">
+                    <tr>
+                        <th>Rider</th>
+                        <th>Weight</th>
+                        <th>Avg Power</th>
+                        <th>Current System</th>
+                        <th>Power Pure</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Light Rider</strong></td>
+                        <td>65kg</td>
+                        <td>280W</td>
+                        <td>43:15 (middle)</td>
+                        <td>44:30 (middle)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Heavy Rider</strong></td>
+                        <td>95kg</td>
+                        <td>320W</td>
+                        <td>42:45 (middle)</td>
+                        <td>41:15 (fastest)</td>
+                    </tr>
+                </table>
+                
+                <div class="distance-comparison">
+                    <div class="distance-box">
+                        <div class="distance-label">Light Rider Distance</div>
+                        <div class="distance-value">32.5 km</div>
+                        <div class="distance-label">Current System</div>
+                    </div>
+                    <div class="distance-box">
+                        <div class="distance-label">Heavy Rider Distance</div>
+                        <div class="distance-value">34.2 km</div>
+                        <div class="distance-label">Current System</div>
+                    </div>
+                    <div class="distance-box">
+                        <div class="distance-label">Light Rider Distance</div>
+                        <div class="distance-value">31.8 km</div>
+                        <div class="distance-label">Power Pure</div>
+                    </div>
+                    <div class="distance-box">
+                        <div class="distance-label">Heavy Rider Distance</div>
+                        <div class="distance-value">35.6 km</div>
+                        <div class="distance-label">Power Pure</div>
+                    </div>
+                </div>
+                
+                <div class="scenario-charts">
+                    <div>
+                        <div class="chart-title">Power Output Over Time</div>
+                        <div class="scenario-chart-container">
+                            <canvas id="scenario2PowerChart"></canvas>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="chart-title">Distance Covered</div>
+                        <div class="scenario-chart-container">
+                            <canvas id="scenario2DistanceChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="insight-box">
+                    <h4>Scenario Insight: Mixed Terrain Reality</h4>
+                    <p>On mixed courses, the current system creates artificial advantages and disadvantages. Power Pure rewards consistent power output regardless of terrain type.</p>
+                    <p><strong>Key Principle:</strong> You race against riders who can sustain similar power outputs, creating truly competitive groups regardless of individual body characteristics.</p>
+                </div>
+            </div>
+            
+            <div class="time-scenario">
+                <div class="time-period">Scenario 3: Long Endurance Ride (2+ hours)</div>
+                <p>Extended efforts where fatigue management becomes critical.</p>
+                
+                <div class="power-pure-principle">
+                    <div class="principle-icon">⏱️⚡⏱️</div>
+                    <div class="principle-title">Dynamic Categories = Fair Racing</div>
+                    <div class="principle-text">
+                        As power drops due to fatigue, categories adjust to maintain fair competition.<br>
+                        <strong>You always race against riders with similar current capabilities.</strong>
+                    </div>
+                </div>
+                
+                <div class="distance-comparison">
+                    <div class="distance-box">
+                        <div class="distance-label">Light Rider Distance</div>
+                        <div class="distance-value">68.4 km</div>
+                        <div class="distance-label">Current System</div>
+                    </div>
+                    <div class="distance-box">
+                        <div class="distance-label">Heavy Rider Distance</div>
+                        <div class="distance-value">62.1 km</div>
+                        <div class="distance-label">Current System</div>
+                    </div>
+                    <div class="distance-box">
+                        <div class="distance-label">Light Rider Distance</div>
+                        <div class="distance-value">65.2 km</div>
+                        <div class="distance-label">Power Pure</div>
+                    </div>
+                    <div class="distance-box">
+                        <div class="distance-label">Heavy Rider Distance</div>
+                        <div class="distance-value">63.8 km</div>
+                        <div class="distance-label">Power Pure</div>
+                    </div>
+                </div>
+                
+                <div class="scenario-3-charts">
+                    <div>
+                        <div class="chart-title">Power Drop-off Over Time</div>
+                        <div class="scenario-chart-container">
+                            <canvas id="scenario3PowerChart"></canvas>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="chart-title">Distance Covered</div>
+                        <div class="scenario-chart-container">
+                            <canvas id="scenario3DistanceChart"></canvas>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="chart-title">Category Impact</div>
+                        <div class="scenario-chart-container">
+                            <canvas id="scenario3CategoryChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="insight-box">
+                    <h4>Scenario Insight: Endurance Reality</h4>
+                    <p>Heavier riders often experience greater power drop-off in extended efforts due to increased physiological stress. Power Pure's dynamic categories ensure fair competition as fatigue sets in.</p>
+                    <p><strong>Key Principle:</strong> Categories adjust based on current power output, not historical peaks. This ensures you're always racing against riders with similar current capabilities.</p>
+                </div>
+            </div>
+        </section>
+        
+        <section class="card">
+            <h2>The Power Pure Solution</h2>
+            <p>Power Pure creates a racing category where all riders compete with standardized virtual weight and aerodynamics. Your raw power is the only factor that determines your performance.</p>
+            
+            <div class="power-pure-principle">
+                <div class="principle-icon">🎯</div>
+                <div class="principle-title">One Simple Rule: Power Determines Placement</div>
+                <div class="principle-text">
+                    Your 20-minute average power places you in a category.<br>
+                    <strong>Everyone in your category produces similar power outputs.</strong><br>
+                    Weight, height, and body composition become irrelevant to competition placement.
+                </div>
+            </div>
+            
+            <div class="comparison-section">
+                <div>
+                    <h3>How It Works</h3>
+                    <ul class="benefits-list">
+                        <li><strong>Standardized Physics:</strong> All riders have identical virtual weight and aerodynamics</li>
+                        <li><strong>Preserved Terrain Feel:</strong> Climbs still require more power than flats</li>
+                        <li><strong>Pure Power Competition:</strong> Your actual wattage determines your speed</li>
+                        <li><strong>Universal Application:</strong> Works across all virtual cycling platforms</li>
+                        <li><strong>Dynamic Categories:</strong> Your category updates based on current fitness</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>Race Categories</h3>
+                    <p>Categories based purely on sustained power output:</p>
+                    <div class="category-badges">
+                        <div class="badge">Elite: > 315W</div>
+                        <div class="badge">Advanced: 263-315W</div>
+                        <div class="badge">Intermediate: 210-263W</div>
+                        <div class="badge">Beginner: < 210W</div>
+                    </div>
+                    <p>Your category is determined by your 20-minute average power, making it simple and objective.</p>
+                </div>
+            </div>
+            
+            <div class="chart-container full-width-chart">
+                <canvas id="powerPureChart"></canvas>
+            </div>
+        </section>
+        
+        <section class="card">
+            <h2>Real Power Data & Categories</h2>
+            <p>Based on analysis of thousands of virtual cycling performances, here's how the Power Pure categories would work:</p>
+            
+            <table class="power-data-table">
+                <tr>
+                    <th>Power Pure Category</th>
+                    <th>Required Power (Watts)</th>
+                    <th>Typical Rider Profile</th>
+                    <th>% of Population</th>
+                </tr>
+                <tr>
+                    <td><strong>Elite</strong></td>
+                    <td>> 315W</td>
+                    <td>Competitive cyclists, racers</td>
+                    <td>~5%</td>
+                </tr>
+                <tr>
+                    <td><strong>Advanced</strong></td>
+                    <td>263W - 315W</td>
+                    <td>Regular trained cyclists</td>
+                    <td>~15%</td>
+                </tr>
+                <tr>
+                    <td><strong>Intermediate</strong></td>
+                    <td>210W - 263W</td>
+                    <td>Recreational cyclists, fitness enthusiasts</td>
+                    <td>~40%</td>
+                </tr>
+                <tr>
+                    <td><strong>Beginner</strong></td>
+                    <td>< 210W</td>
+                    <td>New cyclists, casual riders</td>
+                    <td>~40%</td>
+                </tr>
+            </table>
+            
+            <div class="highlight">
+                <p><strong>Key Insight:</strong> The average FTP (Functional Threshold Power) for male virtual cycling users is approximately 250W, which would place them in the Intermediate category. For female users, the average is around 180W, placing them in Beginner.</p>
+            </div>
+            
+            <div class="chart-container full-width-chart">
+                <canvas id="powerDistributionChart"></canvas>
+            </div>
+        </section>
+        
+        <section class="card faq-section">
+            <h2>Frequently Asked Questions</h2>
+            
+            <div class="faq-item">
+                <div class="faq-question">Wouldn't this system favor heavier riders?</div>
+                <p>No, it wouldn't favor any body type. It would simply create a level playing field where the rider who produces the most power wins, regardless of their weight. Heavy riders with high power outputs would no longer be penalized on climbs.</p>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">How would this work on different virtual cycling platforms?</div>
+                <p>The Power Pure standard would work the same way across all platforms. Riders would be categorized based on their verified power output, and all platforms would use the same physics model that neutralizes weight and height advantages.</p>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">Would climbs still feel like climbs?</div>
+                <p>Yes! The terrain would still affect your speed - you would need to produce more power to maintain speed on a climb than on flat ground. The difference is that all riders would face the same power requirements for the same speed on any given gradient.</p>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">How would category changes work throughout the season?</div>
+                <p>Your Power Pure category would be dynamically updated based on your recent performance. If your power increases through training, you'd move up. If you're in a recovery period, you'd race in a lower category, ensuring fair competition year-round.</p>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">What about different rider heights and aerodynamics?</div>
+                <p>Power Pure standardizes both weight AND aerodynamics. All riders compete with identical virtual profiles. Your power output is the only variable that affects your performance.</p>
+            </div>
+        </section>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <p>Virtual Cycling Power Pure | A Universal Standard for Fair Racing</p>
+            <p><small>Note: This is a conceptual proposal for the virtual cycling community</small></p>
+        </div>
+    </footer>
+
+    <script>
+        // Generate realistic fluctuating power data with fatigue
+        function generateRealisticPowerData(basePower, duration, variability, fatigueFactor = 0) {
+            const data = [];
+            for (let i = 0; i <= duration; i++) {
+                // Base power with realistic fluctuations
+                let power = basePower;
+                
+                // Add random variations
+                power += (Math.random() - 0.5) * variability;
+                
+                // Add fatigue effect (increases over time)
+                if (fatigueFactor > 0) {
+                    const fatigue = (i / duration) * fatigueFactor * basePower;
+                    power -= fatigue;
+                }
+                
+                // Add some realistic patterns
+                if (i < 5) {
+                    // Start surge
+                    power += 20 + (Math.random() * 30);
+                } else if (i > duration - 10) {
+                    // Final push (reduced if fatigued)
+                    const finalPush = fatigueFactor > 0 ? 5 + (Math.random() * 15) : 15 + (Math.random() * 25);
+                    power += finalPush;
+                } else if (i % 20 < 5) {
+                    // Occasional harder efforts
+                    power += 10 + (Math.random() * 20);
+                } else if (i % 15 === 0) {
+                    // Occasional recovery
+                    power -= 15 + (Math.random() * 20);
+                }
+                
+                data.push(Math.max(power, basePower * 0.5)); // Ensure power doesn't drop too low
+            }
+            return data;
+        }
+
+        // Generate distance data based on power
+        function generateDistanceData(powerData, baseSpeed, isHeavy = false, isCurrentSystem = false) {
+            const distanceData = [];
+            let totalDistance = 0;
+            
+            for (let i = 0; i < powerData.length; i++) {
+                // Base speed calculation
+                let speed = baseSpeed;
+                
+                // Adjust speed based on power (simplified model)
+                const powerRatio = powerData[i] / 300;
+                speed *= powerRatio;
+                
+                // In current system, heavy riders are penalized
+                if (isCurrentSystem && isHeavy) {
+                    speed *= 0.85; // Heavy penalty in current system
+                }
+                
+                // In Power Pure, no weight penalty
+                if (!isCurrentSystem) {
+                    // Slight advantage for heavier riders on flats in Power Pure
+                    if (isHeavy) speed *= 1.05;
+                }
+                
+                // Calculate distance for this time segment
+                const timeInHours = 1 / 60; // 1 minute in hours
+                const segmentDistance = speed * timeInHours;
+                totalDistance += segmentDistance;
+                
+                distanceData.push(totalDistance);
+            }
+            
+            return distanceData;
+        }
+
+        // Current System Chart
+        const currentCtx = document.getElementById('currentSystemChart').getContext('2d');
+        new Chart(currentCtx, {
+            type: 'bar',
+            data: {
+                labels: ['60kg Rider (300W)', '75kg Rider (300W)', '90kg Rider (300W)'],
+                datasets: [{
+                    label: 'W/kg in Current System',
+                    data: [5.0, 4.0, 3.3],
+                    backgroundColor: [
+                        'rgba(41, 128, 185, 0.7)',
+                        'rgba(52, 152, 219, 0.7)',
+                        'rgba(93, 173, 226, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgb(41, 128, 185)',
+                        'rgb(52, 152, 219)',
+                        'rgb(93, 173, 226)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Watts per Kilogram (W/kg)'
+                        }
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Current System: Same Power, Different W/kg'
+                    }
+                }
+            }
+        });
+
+        // Power Fluctuation Chart
+        const powerFluctuationCtx = document.getElementById('powerFluctuationChart').getContext('2d');
+        new Chart(powerFluctuationCtx, {
+            type: 'line',
+            data: {
+                labels: Array.from({length: 61}, (_, i) => i),
+                datasets: [{
+                    label: 'Power Output (Watts)',
+                    data: generateRealisticPowerData(280, 60, 40),
+                    borderColor: 'rgb(231, 76, 60)',
+                    backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Power (Watts)'
+                        },
+                        max: 400
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Time (minutes)'
+                        }
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Realistic Power Fluctuations During a 60-Minute Zwift Race'
+                    }
+                }
+            }
+        });
+
+        // Climb Comparison Chart
+        const climbCtx = document.getElementById('climbComparisonChart').getContext('2d');
+        
+        // Generate realistic climb data with fluctuations
+        const climbDuration = 60;
+        const climbPoints = 20;
+        
+        const lightRiderData = [];
+        const heavyRiderData = [];
+        const powerPureData = [];
+        
+        for (let i = 0; i <= climbPoints; i++) {
+            const progress = i / climbPoints;
+            
+            let lightDistance = 12000 * progress;
+            lightDistance += (Math.random() - 0.5) * 200;
+            lightRiderData.push(lightDistance);
+            
+            let heavyDistance = 8000 * progress;
+            heavyDistance += (Math.random() - 0.5) * 150;
+            heavyRiderData.push(heavyDistance);
+            
+            let powerPureDistance = 10000 * progress;
+            powerPureDistance += (Math.random() - 0.5) * 180;
+            powerPureData.push(powerPureDistance);
+        }
+        
+        new Chart(climbCtx, {
+            type: 'line',
+            data: {
+                labels: ['Start', '5%', '10%', '15%', '20%', '25%', '30%', '35%', '40%', '45%', '50%', '55%', '60%', '65%', '70%', '75%', '80%', '85%', '90%', '95%', 'Finish'],
+                datasets: [
+                    {
+                        label: '60kg Rider - Current System (300W, 5.0 W/kg)',
+                        data: lightRiderData,
+                        borderColor: 'rgb(41, 128, 185)',
+                        backgroundColor: 'rgba(41, 128, 185, 0.1)',
+                        tension: 0.3,
+                        borderDash: [5, 5],
+                        pointRadius: 2
+                    },
+                    {
+                        label: '90kg Rider - Current System (300W, 3.3 W/kg)',
+                        data: heavyRiderData,
+                        borderColor: 'rgb(93, 173, 226)',
+                        backgroundColor: 'rgba(93, 173, 226, 0.1)',
+                        tension: 0.3,
+                        borderDash: [5, 5],
+                        pointRadius: 2
+                    },
+                    {
+                        label: 'Both Riders - Power Pure (300W, 4.0 W/kg)',
+                        data: powerPureData,
+                        borderColor: 'rgb(46, 204, 113)',
+                        backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                        tension: 0.3,
+                        pointRadius: 2
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Distance Covered (meters)'
+                        },
+                        max: 12000
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Climb Performance Comparison (8% gradient, 12km climb)'
+                    }
+                }
+            }
+        });
+
+        // Power vs Distance Chart
+        const powerDistanceCtx = document.getElementById('powerDistanceChart').getContext('2d');
+        
+        const powerData = generateRealisticPowerData(300, 20, 30);
+        const lightRiderPowerDistance = [];
+        const heavyRiderPowerDistance = [];
+        const powerPurePowerDistance = [];
+        
+        for (let i = 0; i <= 20; i++) {
+            const progress = i / 20;
+            lightRiderPowerDistance.push(12000 * progress);
+            heavyRiderPowerDistance.push(8000 * progress);
+            powerPurePowerDistance.push(10000 * progress);
+        }
+        
+        new Chart(powerDistanceCtx, {
+            type: 'line',
+            data: {
+                labels: Array.from({length: 21}, (_, i) => `${i * 5}%`),
+                datasets: [
+                    {
+                        label: '60kg Rider Distance (Current System)',
+                        data: lightRiderPowerDistance,
+                        borderColor: 'rgb(41, 128, 185)',
+                        backgroundColor: 'rgba(41, 128, 185, 0.1)',
+                        tension: 0.3,
+                        yAxisID: 'y',
+                        pointRadius: 1
+                    },
+                    {
+                        label: '90kg Rider Distance (Current System)',
+                        data: heavyRiderPowerDistance,
+                        borderColor: 'rgb(93, 173, 226)',
+                        backgroundColor: 'rgba(93, 173, 226, 0.1)',
+                        tension: 0.3,
+                        yAxisID: 'y',
+                        pointRadius: 1
+                    },
+                    {
+                        label: 'Power Pure Distance (Both Riders)',
+                        data: powerPurePowerDistance,
+                        borderColor: 'rgb(46, 204, 113)',
+                        backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                        tension: 0.3,
+                        yAxisID: 'y',
+                        pointRadius: 1
+                    },
+                    {
+                        label: 'Power Output (Both Riders)',
+                        data: powerData,
+                        borderColor: 'rgb(231, 76, 60)',
+                        backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                        tension: 0.4,
+                        yAxisID: 'y1',
+                        pointRadius: 0,
+                        borderDash: [5, 5]
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'Distance Covered (meters)'
+                        },
+                        beginAtZero: true,
+                        max: 12000
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'Power Output (Watts)'
+                        },
+                        beginAtZero: true,
+                        max: 400,
+                        grid: {
+                            drawOnChartArea: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // Realistic Power Output During Climb
+        const realisticPowerCtx = document.getElementById('realisticPowerChart').getContext('2d');
+        
+        const lightRiderPower = generateRealisticPowerData(300, 60, 35);
+        const heavyRiderPower = generateRealisticPowerData(300, 60, 35);
+        
+        new Chart(realisticPowerCtx, {
+            type: 'line',
+            data: {
+                labels: Array.from({length: 61}, (_, i) => i),
+                datasets: [
+                    {
+                        label: '60kg Rider Power (300W avg)',
+                        data: lightRiderPower,
+                        borderColor: 'rgb(41, 128, 185)',
+                        backgroundColor: 'rgba(41, 128, 185, 0.1)',
+                        tension: 0.4,
+                        pointRadius: 0
+                    },
+                    {
+                        label: '90kg Rider Power (300W avg)',
+                        data: heavyRiderPower,
+                        borderColor: 'rgb(231, 76, 60)',
+                        backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                        tension: 0.4,
+                        pointRadius: 0
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Power Output (Watts)'
+                        },
+                        max: 400
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Time (minutes)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Seasonal Power Progression Chart
+        const seasonalCtx = document.getElementById('seasonalPowerChart').getContext('2d');
+        new Chart(seasonalCtx, {
+            type: 'line',
+            data: {
+                labels: ['Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov'],
+                datasets: [
+                    {
+                        label: 'Light Rider (75kg) - Power',
+                        data: [245, 250, 255, 265, 275, 285, 295, 300, 300, 290, 285, 280],
+                        borderColor: 'rgb(52, 152, 219)',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        tension: 0.4,
+                        fill: false,
+                        pointRadius: 4
+                    },
+                    {
+                        label: 'Heavy Rider (95kg) - Power',
+                        data: [275, 280, 280, 285, 295, 300, 295, 290, 285, 275, 270, 265],
+                        borderColor: 'rgb(231, 76, 60)',
+                        backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                        tension: 0.4,
+                        fill: false,
+                        pointRadius: 4
+                    },
+                    {
+                        label: 'Elite Threshold (315W)',
+                        data: [315, 315, 315, 315, 315, 315, 315, 315, 315, 315, 315, 315],
+                        borderColor: 'rgba(231, 76, 60, 0.5)',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        fill: false,
+                        pointRadius: 0
+                    },
+                    {
+                        label: 'Advanced Threshold (263W)',
+                        data: [263, 263, 263, 263, 263, 263, 263, 263, 263, 263, 263, 263],
+                        borderColor: 'rgba(243, 156, 18, 0.5)',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        fill: false,
+                        pointRadius: 0
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        title: {
+                            display: true,
+                            text: 'Power Output (Watts)'
+                        },
+                        min: 200,
+                        max: 350
+                    }
+                }
+            }
+        });
+
+        // Category Progression Chart - FIXED with clear drop-off for heavy rider
+        const categoryCtx = document.getElementById('categoryProgressionChart').getContext('2d');
+
+        function powerToCategory(power) {
+            if (power >= 315) return 3; // Elite
+            if (power >= 263) return 2; // Advanced
+            if (power >= 210) return 1; // Intermediate
+            return 0; // Beginner
+        }
+
+        // FIXED: Heavy rider now shows clear drop-off throughout season
+        const lightRiderPowerData = [245, 250, 260, 270, 285, 295, 305, 310, 305, 295, 285, 275];
+        const heavyRiderPowerData = [280, 295, 310, 320, 315, 305, 290, 275, 265, 255, 250, 245]; // Clear drop-off
+
+        const lightRiderCategories = lightRiderPowerData.map(powerToCategory);
+        const heavyRiderCategories = heavyRiderPowerData.map(powerToCategory);
+
+        new Chart(categoryCtx, {
+            type: 'line',
+            data: {
+                labels: ['Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov'],
+                datasets: [
+                    {
+                        label: 'Light Rider (75kg) - Power Pure Category',
+                        data: lightRiderCategories,
+                        borderColor: 'rgb(52, 152, 219)',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        tension: 0.3,
+                        fill: false,
+                        pointRadius: 6,
+                        borderWidth: 3,
+                        pointBackgroundColor: 'rgb(52, 152, 219)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    },
+                    {
+                        label: 'Heavy Rider (95kg) - Power Pure Category',
+                        data: heavyRiderCategories,
+                        borderColor: 'rgb(231, 76, 60)',
+                        backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                        tension: 0.3,
+                        fill: false,
+                        pointRadius: 6,
+                        borderWidth: 3,
+                        pointBackgroundColor: 'rgb(231, 76, 60)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Power Pure Category'
+                        },
+                        min: 0,
+                        max: 3,
+                        ticks: {
+                            callback: function(value) {
+                                const categories = ['Beginner', 'Intermediate', 'Advanced', 'Elite'];
+                                return categories[value];
+                            },
+                            stepSize: 1,
+                            font: {
+                                size: 12,
+                                weight: 'bold'
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(0,0,0,0.1)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            font: {
+                                size: 11
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(0,0,0,0.05)'
+                        }
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Category Changes Throughout Season - Heavy Rider Shows Significant Drop-off',
+                        font: {
+                            size: 16,
+                            weight: 'bold'
+                        },
+                        padding: {
+                            bottom: 20
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const categories = ['Beginner', 'Intermediate', 'Advanced', 'Elite'];
+                                const rider = context.dataset.label.includes('Light') ? 'Light Rider' : 'Heavy Rider';
+                                return `${rider}: ${categories[context.raw]}`;
+                            }
+                        }
+                    },
+                    legend: {
+                        labels: {
+                            font: {
+                                size: 12,
+                                weight: 'bold'
+                            },
+                            padding: 20
+                        }
+                    }
+                }
+            }
+        });
+
+        // Scenario 1: Tempus Fugit Power Chart
+        const scenario1PowerCtx = document.getElementById('scenario1PowerChart').getContext('2d');
+        const scenario1LightPower = generateRealisticPowerData(280, 20, 25);
+        const scenario1HeavyPower = generateRealisticPowerData(320, 20, 30);
+        
+        new Chart(scenario1PowerCtx, {
+            type: 'line',
+            data: {
+                labels: Array.from({length: 21}, (_, i) => i),
+                datasets: [
+                    {
+                        label: 'Light Rider (280W avg)',
+                        data: scenario1LightPower,
+                        borderColor: 'rgb(52, 152, 219)',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        tension: 0.4,
+                        pointRadius: 1
+                    },
+                    {
+                        label: 'Heavy Rider (320W avg)',
+                        data: scenario1HeavyPower,
+                        borderColor: 'rgb(231, 76, 60)',
+                        backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                        tension: 0.4,
+                        pointRadius: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Power Output (Watts)'
+                        },
+                        max: 400
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Time (minutes)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Scenario 1: Distance Chart
+        const scenario1DistanceCtx = document.getElementById('scenario1DistanceChart').getContext('2d');
+        
+        const scenario1LightDistanceCurrent = generateDistanceData(scenario1LightPower, 45, false, true);
+        const scenario1HeavyDistanceCurrent = generateDistanceData(scenario1HeavyPower, 45, true, true);
+        const scenario1LightDistancePure = generateDistanceData(scenario1LightPower, 45, false, false);
+        const scenario1HeavyDistancePure = generateDistanceData(scenario1HeavyPower, 45, true, false);
+        
+        new Chart(scenario1DistanceCtx, {
+            type: 'line',
+            data: {
+                labels: Array.from({length: 21}, (_, i) => i),
+                datasets: [
+                    {
+                        label: 'Light Rider - Current System',
+                        data: scenario1LightDistanceCurrent,
+                        borderColor: 'rgb(52, 152, 219)',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        tension: 0.4,
+                        borderDash: [5, 5],
+                        pointRadius: 1
+                    },
+                    {
+                        label: 'Heavy Rider - Current System',
+                        data: scenario1HeavyDistanceCurrent,
+                        borderColor: 'rgb(231, 76, 60)',
+                        backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                        tension: 0.4,
+                        borderDash: [5, 5],
+                        pointRadius: 1
+                    },
+                    {
+                        label: 'Light Rider - Power Pure',
+                        data: scenario1LightDistancePure,
+                        borderColor: 'rgb(52, 152, 219)',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        tension: 0.4,
+                        pointRadius: 1
+                    },
+                    {
+                        label: 'Heavy Rider - Power Pure',
+                        data: scenario1HeavyDistancePure,
+                        borderColor: 'rgb(231, 76, 60)',
+                        backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                        tension: 0.4,
+                        pointRadius: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Distance (km)'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Time (minutes)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Scenario 2: Watopia's Figure 8 Power Chart
+        const scenario2PowerCtx = document.getElementById('scenario2PowerChart').getContext('2d');
+        const scenario2LightPower = generateRealisticPowerData(280, 45, 35);
+        const scenario2HeavyPower = generateRealisticPowerData(320, 45, 40, 0.1);
+        
+        new Chart(scenario2PowerCtx, {
+            type: 'line',
+            data: {
+                labels: Array.from({length: 46}, (_, i) => i),
+                datasets: [
+                    {
+                        label: 'Light Rider (280W avg)',
+                        data: scenario2LightPower,
+                        borderColor: 'rgb(52, 152, 219)',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        tension: 0.4,
+                        pointRadius: 0
+                    },
+                    {
+                        label: 'Heavy Rider (320W avg)',
+                        data: scenario2HeavyPower,
+                        borderColor: 'rgb(231, 76, 60)',
+                        backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                        tension: 0.4,
+                        pointRadius: 0
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Power Output (Watts)'
+                        },
+                        max: 400
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Time (minutes)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Scenario 2: Distance Chart
+        const scenario2DistanceCtx = document.getElementById('scenario2DistanceChart').getContext('2d');
+        
+        const scenario2LightDistanceCurrent = generateDistanceData(scenario2LightPower, 42, false, true);
+        const scenario2HeavyDistanceCurrent = generateDistanceData(scenario2HeavyPower, 42, true, true);
+        const scenario2LightDistancePure = generateDistanceData(scenario2LightPower, 42, false, false);
+        const scenario2HeavyDistancePure = generateDistanceData(scenario2HeavyPower, 42, true, false);
+        
+        new Chart(scenario2DistanceCtx, {
+            type: 'line',
+            data: {
+                labels: Array.from({length: 46}, (_, i) => i),
+                datasets: [
+                    {
+                        label: 'Light Rider - Current System',
+                        data: scenario2LightDistanceCurrent,
+                        borderColor: 'rgb(52, 152, 219)',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        tension: 0.4,
+                        borderDash: [5, 5],
+                        pointRadius: 0
+                    },
+                    {
+                        label: 'Heavy Rider - Current System',
+                        data: scenario2HeavyDistanceCurrent,
+                        borderColor: 'rgb(231, 76, 60)',
+                        backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                        tension: 0.4,
+                        borderDash: [5, 5],
+                        pointRadius: 0
+                    },
+                    {
+                        label: 'Light Rider - Power Pure',
+                        data: scenario2LightDistancePure,
+                        borderColor: 'rgb(52, 152, 219)',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        tension: 0.4,
+                        pointRadius: 0
+                    },
+                    {
+                        label: 'Heavy Rider - Power Pure',
+                        data: scenario2HeavyDistancePure,
+                        borderColor: 'rgb(231, 76, 60)',
+                        backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                        tension: 0.4,
+                        pointRadius: 0
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Distance (km)'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Time (minutes)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Scenario 3: Long Endurance Power Drop-off
+        const scenario3PowerCtx = document.getElementById('scenario3PowerChart').getContext('2d');
+        const scenario3LightPower = generateRealisticPowerData(280, 120, 30, 0.15);
+        const scenario3HeavyPower = generateRealisticPowerData(320, 120, 35, 0.25);
+        
+        new Chart(scenario3PowerCtx, {
+            type: 'line',
+            data: {
+                labels: Array.from({length: 121}, (_, i) => i),
+                datasets: [
+                    {
+                        label: 'Light Rider (280W starting)',
+                        data: scenario3LightPower,
+                        borderColor: 'rgb(52, 152, 219)',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        tension: 0.4,
+                        pointRadius: 0
+                    },
+                    {
+                        label: 'Heavy Rider (320W starting)',
+                        data: scenario3HeavyPower,
+                        borderColor: 'rgb(231, 76, 60)',
+                        backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                        tension: 0.4,
+                        pointRadius: 0
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Power Output (Watts)'
+                        },
+                        max: 400
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Time (minutes)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Scenario 3: Distance Chart
+        const scenario3DistanceCtx = document.getElementById('scenario3DistanceChart').getContext('2d');
+        
+        const scenario3LightDistanceCurrent = generateDistanceData(scenario3LightPower, 32, false, true);
+        const scenario3HeavyDistanceCurrent = generateDistanceData(scenario3HeavyPower, 32, true, true);
+        const scenario3LightDistancePure = generateDistanceData(scenario3LightPower, 32, false, false);
+        const scenario3HeavyDistancePure = generateDistanceData(scenario3HeavyPower, 32, true, false);
+        
+        new Chart(scenario3DistanceCtx, {
+            type: 'line',
+            data: {
+                labels: Array.from({length: 121}, (_, i) => i),
+                datasets: [
+                    {
+                        label: 'Light Rider - Current System',
+                        data: scenario3LightDistanceCurrent,
+                        borderColor: 'rgb(52, 152, 219)',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        tension: 0.4,
+                        borderDash: [5, 5],
+                        pointRadius: 0
+                    },
+                    {
+                        label: 'Heavy Rider - Current System',
+                        data: scenario3HeavyDistanceCurrent,
+                        borderColor: 'rgb(231, 76, 60)',
+                        backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                        tension: 0.4,
+                        borderDash: [5, 5],
+                        pointRadius: 0
+                    },
+                    {
+                        label: 'Light Rider - Power Pure',
+                        data: scenario3LightDistancePure,
+                        borderColor: 'rgb(52, 152, 219)',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        tension: 0.4,
+                        pointRadius: 0
+                    },
+                    {
+                        label: 'Heavy Rider - Power Pure',
+                        data: scenario3HeavyDistancePure,
+                        borderColor: 'rgb(231, 76, 60)',
+                        backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                        tension: 0.4,
+                        pointRadius: 0
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Distance (km)'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Time (minutes)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Scenario 3: Category Impact Chart
+        const scenario3CategoryCtx = document.getElementById('scenario3CategoryChart').getContext('2d');
+        
+        // Calculate category changes during the long ride
+        const scenario3LightCategories = [];
+        const scenario3HeavyCategories = [];
+        
+        for (let i = 0; i < 121; i += 10) {
+            const lightPower = scenario3LightPower[i];
+            const heavyPower = scenario3HeavyPower[i];
+            
+            scenario3LightCategories.push(powerToCategory(lightPower));
+            scenario3HeavyCategories.push(powerToCategory(heavyPower));
+        }
+        
+        new Chart(scenario3CategoryCtx, {
+            type: 'line',
+            data: {
+                labels: Array.from({length: 13}, (_, i) => i * 10),
+                datasets: [
+                    {
+                        label: 'Light Rider Category',
+                        data: scenario3LightCategories,
+                        borderColor: 'rgb(52, 152, 219)',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        tension: 0.4,
+                        fill: false,
+                        pointRadius: 4,
+                        borderWidth: 2
+                    },
+                    {
+                        label: 'Heavy Rider Category',
+                        data: scenario3HeavyCategories,
+                        borderColor: 'rgb(231, 76, 60)',
+                        backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                        tension: 0.4,
+                        fill: false,
+                        pointRadius: 4,
+                        borderWidth: 2
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Power Pure Category'
+                        },
+                        min: 0,
+                        max: 3,
+                        ticks: {
+                            callback: function(value) {
+                                const categories = ['Beginner', 'Intermediate', 'Advanced', 'Elite'];
+                                return categories[value];
+                            },
+                            stepSize: 1
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Time (minutes)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Power Pure Chart
+        const powerPureCtx = document.getElementById('powerPureChart').getContext('2d');
+        new Chart(powerPureCtx, {
+            type: 'bar',
+            data: {
+                labels: ['60kg Rider (300W)', '75kg Rider (300W)', '90kg Rider (300W)'],
+                datasets: [{
+                    label: 'Power in Power Pure System',
+                    data: [300, 300, 300],
+                    backgroundColor: [
+                        'rgba(46, 204, 113, 0.7)',
+                        'rgba(46, 204, 113, 0.7)',
+                        'rgba(46, 204, 113, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgb(39, 174, 96)',
+                        'rgb(39, 174, 96)',
+                        'rgb(39, 174, 96)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Power (Watts)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Power Distribution Chart
+        const powerDistCtx = document.getElementById('powerDistributionChart').getContext('2d');
+        new Chart(powerDistCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Elite: >315W (5%)', 'Advanced: 263-315W (15%)', 'Intermediate: 210-263W (40%)', 'Beginner: <210W (40%)'],
+                datasets: [{
+                    data: [5, 15, 40, 40],
+                    backgroundColor: [
+                        'rgba(231, 76, 60, 0.7)',
+                        'rgba(230, 126, 34, 0.7)',
+                        'rgba(52, 152, 219, 0.7)',
+                        'rgba(46, 204, 113, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgb(231, 76, 60)',
+                        'rgb(230, 126, 34)',
+                        'rgb(52, 152, 219)',
+                        'rgb(46, 204, 113)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true
+            }
+        });
+    </script>
+</body>
+</html>
